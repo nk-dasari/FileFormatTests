@@ -1,4 +1,4 @@
-package com.training.hadoop;
+package com.hadoop.training;
 
 import java.io.IOException;
 
@@ -18,10 +18,10 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 public class KVInputFormatEx {
 
-	public class KVMapper extends Mapper<IntWritable,Text,Text,IntWritable>{
+	public static class KVMapper extends Mapper<Text,Text,Text,IntWritable>{
 		
 		@Override
-		public void map(IntWritable key,Text value,Context context) throws IOException, InterruptedException{
+		public void map(Text key,Text value,Context context) throws IOException, InterruptedException{
 			
 			IntWritable one = new IntWritable(1);
 			String[] words = value.toString().split(",");
@@ -31,7 +31,7 @@ public class KVInputFormatEx {
 		}
 	}
 	
-	public class KVReducer extends Reducer<Text,IntWritable,Text,IntWritable>{
+	public static class KVReducer extends Reducer<Text,IntWritable,Text,IntWritable>{
 		
 		@Override
 		public void reduce(Text key,Iterable<IntWritable>values,Context context) throws IOException, InterruptedException{
@@ -48,7 +48,7 @@ public class KVInputFormatEx {
 	public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
 		// TODO Auto-generated method stub
 		Configuration conf = new Configuration();
-		Job job = Job.getInstance(conf, "AirLine Count");
+		Job job = Job.getInstance(conf, "KV Input Format");
 		job.setJarByClass(KVInputFormatEx.class);
 		job.setInputFormatClass(KeyValueTextInputFormat.class);
 		job.setOutputFormatClass(TextOutputFormat.class);
@@ -56,6 +56,7 @@ public class KVInputFormatEx {
 		job.setOutputValueClass(IntWritable.class);
 		job.setMapperClass(KVMapper.class);
 		job.setReducerClass(KVReducer.class);
+		job.setNumReduceTasks(1);
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		job.waitForCompletion(true);
